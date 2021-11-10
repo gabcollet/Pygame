@@ -22,16 +22,22 @@ class Game:
 		img_folder = path.join(game_folder, 'img')
 		self.map = Map(path.join(game_folder, 'map2.txt'))
 		self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG_DOWN)).convert_alpha()
+		self.mob_img = pg.image.load(path.join(img_folder, MOB_IMG_FRONT)).convert_alpha()
+		self.wall_img = pg.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
+		self.wall_img = pg.transform.scale(self.wall_img, (TILESIZE, TILESIZE))
 
 	def	new(self):
 		#sert a initié les variables pour un nouveau jeu
 		self.all_sprites = pg.sprite.Group()
 		self.walls = pg.sprite.Group()
+		self.mobs = pg.sprite.Group()
 		#sert a faire apparaitre les murs
 		for row, tiles in enumerate(self.map.data):
 			for col, tile in enumerate(tiles):
 				if tile == '1':
 					Wall(self, col, row)
+				if tile == 'M':
+					Mob(self, col, row)
 				if tile == 'P':
 					self.player = Player(self, col, row)
 		self.camera = Camera(self.map.width, self.map.height)
@@ -59,8 +65,9 @@ class Game:
 			pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
 	
 	def draw(self):
+		pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
 		self.screen.fill(BGCOLOR)
-		self.draw_grid()
+		""" self.draw_grid() """
 		for sprite in self.all_sprites:
 			self.screen.blit(sprite.image, self.camera.apply(sprite))
 		pg.display.flip()
@@ -73,9 +80,6 @@ class Game:
 			if event.type == pg.KEYDOWN:
 				if event.key == pg.K_ESCAPE:
 					self.quit()
-				if event.key == pg.K_c:
-					RAND_COLOR = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-					self.player.image.fill(RAND_COLOR)
 	
 	def show_start_screen(self):
 		pass

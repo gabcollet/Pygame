@@ -89,13 +89,38 @@ class Player(pg.sprite.Sprite):
 		self.rect.center = self.hit_rect.center
 		self.rect.move_ip(0, -5)
 
+class Mob(pg.sprite.Sprite):
+	def __init__(self, game, x, y):
+		self.groups = game.all_sprites, game.mobs
+		pg.sprite.Sprite.__init__(self, self.groups)
+		self.game = game
+		self.image = game.mob_img
+		self.rect = self.image.get_rect()
+		self.pos = vec(x, y) * TILESIZE
+		self.rect.center = self.pos
+		self.rot = 0
+	
+	def update(self):
+		game_folder = path.dirname(__file__)
+		img_folder = path.join(game_folder, 'img')
+		self.rot = (self.game.player.pos - self.pos).angle_to(vec(1, 0))
+		if self.rot > -135 and self.rot < -45:
+			self.image = pg.image.load(path.join(img_folder, MOB_IMG_FRONT)).convert_alpha()
+		if self.rot < 135 and self.rot > 45:
+			self.image = pg.image.load(path.join(img_folder, MOB_IMG_BACK)).convert_alpha()
+		if self.rot > 135 or self.rot < -135:
+			self.image = pg.image.load(path.join(img_folder, MOB_IMG_LEFT)).convert_alpha()
+		if self.rot < 45 and self.rot > -45:
+			self.image = pg.image.load(path.join(img_folder, MOB_IMG_RIGHT)).convert_alpha()
+		self.rect = self.image.get_rect()
+		self.rect.center = self.pos
+
 class Wall(pg.sprite.Sprite):
 	def __init__(self, game, x, y):
 		self.groups = game.all_sprites, game.walls
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
-		self.image = pg.Surface((TILESIZE, TILESIZE))
-		self.image.fill(GREEN)
+		self.image = game.wall_img
 		self.rect = self.image.get_rect()
 		self.x = x
 		self.y = y
