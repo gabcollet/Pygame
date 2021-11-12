@@ -1,4 +1,5 @@
 import pygame as pg
+vec = pg.math.Vector2
 
 #define colors (R, G, B)
 WHITE = (255, 255, 255)
@@ -24,15 +25,24 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 #Player settings
 PLAYER_SPEED = 300 #pixel per sec
 """ PLAYER_ROT_SPEED = 250 """
-PLAYER_IMG_RIGHT = 'Player/player_side/tile000.png'
-PLAYER_IMG_LEFT = 'Player/player_side/left00.png'
-PLAYER_IMG_DOWN = 'Player/player_front/tile000.png'
-PLAYER_IMG_UP = 'Player/player_back/tile000.png'
-PLAYER_IMG_DOWN_R = 'Player/player_angle_1/tile000.png'
-PLAYER_IMG_DOWN_L = 'Player/player_angle_1/rev00.png'
-PLAYER_IMG_UP_R = 'Player/player_angle_2/tile000.png'
-PLAYER_IMG_UP_L = 'Player/player_angle_2/rev00.png'
+PLAYER_IMG_RIGHT = 'Player/player_side/tile029.png'
+PLAYER_IMG_LEFT = 'Player/player_side/rev29.png'
+PLAYER_IMG_DOWN = 'Player/player_front/tile029.png'
+PLAYER_IMG_UP = 'Player/player_back/tile029.png'
+PLAYER_IMG_DOWN_R = 'Player/player_angle_1/tile029.png'
+PLAYER_IMG_DOWN_L = 'Player/player_angle_1/rev29.png'
+PLAYER_IMG_UP_R = 'Player/player_angle_2/tile029.png'
+PLAYER_IMG_UP_L = 'Player/player_angle_2/rev29.png'
 PLAYER_HIT_RECT = pg.Rect(0 , 0, 25, 48)
+BARREL_OFFSET = vec(20, 8)
+
+#Gun settings
+BULLET_IMG = 'Player/bullet1.png'
+BULLET_SPEED = 500
+BULLET_LIFETIME = 1500
+BULLET_RATE = 150
+KICKBACK = 200
+GUN_SPREAD = 5
 
 WALL_IMG = 'Buildings/wall.png'
 
@@ -42,3 +52,5 @@ MOB_IMG_FRONT = 'Mobs/Cactus/mob_front/tile000.png'
 MOB_IMG_BACK = 'Mobs/Cactus/mob_back/tile000.png'
 MOB_IMG_RIGHT = 'Mobs/Cactus/mob_side/tile000.png'
 MOB_IMG_LEFT = 'Mobs/Cactus/mob_side/rev00.png'
+MOB_SPEED = 150
+MOB_HIT_RECT = pg.Rect(0, 0, 20, 45)

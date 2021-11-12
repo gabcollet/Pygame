@@ -21,8 +21,9 @@ class Game:
 		game_folder = path.dirname(__file__)
 		img_folder = path.join(game_folder, 'img')
 		self.map = Map(path.join(game_folder, 'map2.txt'))
-		self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG_DOWN)).convert_alpha()
+		self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG_RIGHT)).convert_alpha()
 		self.mob_img = pg.image.load(path.join(img_folder, MOB_IMG_FRONT)).convert_alpha()
+		self.bullet_img = pg.image.load(path.join(img_folder, BULLET_IMG)).convert_alpha()
 		self.wall_img = pg.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
 		self.wall_img = pg.transform.scale(self.wall_img, (TILESIZE, TILESIZE))
 
@@ -31,6 +32,7 @@ class Game:
 		self.all_sprites = pg.sprite.Group()
 		self.walls = pg.sprite.Group()
 		self.mobs = pg.sprite.Group()
+		self.bullets = pg.sprite.Group()
 		#sert a faire apparaitre les murs
 		for row, tiles in enumerate(self.map.data):
 			for col, tile in enumerate(tiles):
@@ -49,14 +51,20 @@ class Game:
 			self.events()
 			self.update()
 			self.draw()
+		self.quit()
 
 	def	quit(self):
 		pg.quit()
 		sys.exit()
 
 	def update(self):
+		#update portion of the game loop
 		self.all_sprites.update()
 		self.camera.update(self.player)
+		#bullet hit mobs
+		hits = pg.sprite.groupcollide(self.mobs, self.bullets, False, True, collide_hit_rect)
+		for hit in hits:
+			hit.kill()
 	
 	def draw_grid(self):
 		for x in range(0, WIDTH, TILESIZE):
@@ -76,10 +84,10 @@ class Game:
 		#sert a maper les events
 		for event in pg.event.get():
 			if event.type == pg.QUIT:
-				self.quit()
+				self.playing = False
 			if event.type == pg.KEYDOWN:
 				if event.key == pg.K_ESCAPE:
-					self.quit()
+					self.playing = False
 	
 	def show_start_screen(self):
 		pass

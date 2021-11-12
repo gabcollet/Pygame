@@ -29,7 +29,7 @@ class Camera:
 
 	def update(self, target):
 		x = -target.rect.x + int(WIDTH / 2)
-		y = -target.rect.y + int(WIDTH / 2)
+		y = -target.rect.y + int(WIDTH / 3)
 
 		# limit scrolling at map size
 		x = min(0, x) #left
