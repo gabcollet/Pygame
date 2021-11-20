@@ -8,6 +8,24 @@ from settings import *
 from sprites import *
 from tilemap import *
 
+#HUD functions
+def draw_player_health(surf, x, y, pct):
+	if pct < 0:
+		pct = 0
+	BAR_LENGTH = 100
+	BAR_HEIGHT = 20
+	fill = pct * BAR_LENGTH
+	outline_rect = pg.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+	fill_rect = pg.Rect(x, y, fill, BAR_HEIGHT)
+	if pct > 0.6:
+		col = GREEN
+	elif pct > 0.3:
+		col = YELLOW
+	else:
+		col = RED
+	pg.draw.rect(surf, col, fill_rect)
+	pg.draw.rect(surf, WHITE, outline_rect, 2)
+	
 class Game:
 	def __init__(self):
 		pg.init()
@@ -20,7 +38,10 @@ class Game:
 	def	load_data(self):
 		game_folder = path.dirname(__file__)
 		img_folder = path.join(game_folder, 'img')
-		self.map = Map(path.join(game_folder, 'map2.txt'))
+		map_folder = path.join(game_folder, 'maps')
+		self.map = TiledMap(path.join(map_folder, 'level1.tmx'))
+		self.map_img = self.map.make_map()
+		self.map_rect = self.map_img.get_rect()
 		self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG_RIGHT)).convert_alpha()
 		self.mob_img = pg.image.load(path.join(img_folder, MOB_IMG_FRONT)).convert_alpha()
 		self.bullet_img = pg.image.load(path.join(img_folder, BULLET_IMG)).convert_alpha()
@@ -34,14 +55,15 @@ class Game:
 		self.mobs = pg.sprite.Group()
 		self.bullets = pg.sprite.Group()
 		#sert a faire apparaitre les murs
-		for row, tiles in enumerate(self.map.data):
+		""" for row, tiles in enumerate(self.map.data):
 			for col, tile in enumerate(tiles):
 				if tile == '1':
 					Wall(self, col, row)
 				if tile == 'M':
 					Mob(self, col, row)
 				if tile == 'P':
-					self.player = Player(self, col, row)
+					self.player = Player(self, col, row) """
+		self.player = Player(self, 11.5, 5)
 		self.camera = Camera(self.map.width, self.map.height)
 
 	def run(self):
@@ -54,17 +76,28 @@ class Game:
 		self.quit()
 
 	def	quit(self):
+		""" pg.display.quit() """
 		pg.quit()
-		sys.exit()
+		exit()
 
 	def update(self):
 		#update portion of the game loop
 		self.all_sprites.update()
 		self.camera.update(self.player)
+		#mobs hit player
+		hits = pg.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
+		for hit in hits:
+			self.player.health -= MOB_DAMAGE
+			hit.vel = vec(0,0)
+			if self.player.health <= 0:
+				self.playing = False
+		if hits:
+			self.player.pos += vec(MOB_KNOCKBACK, 0).rotate(-hits[0].rot)
 		#bullet hit mobs
 		hits = pg.sprite.groupcollide(self.mobs, self.bullets, False, True, collide_hit_rect)
 		for hit in hits:
-			hit.kill()
+			hit.health -= BULLET_DAMAGE
+			hit.vel = vec(0,0)
 	
 	def draw_grid(self):
 		for x in range(0, WIDTH, TILESIZE):
@@ -74,10 +107,15 @@ class Game:
 	
 	def draw(self):
 		pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
-		self.screen.fill(BGCOLOR)
+		""" self.screen.fill(BGCOLOR) """
+		self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
 		""" self.draw_grid() """
 		for sprite in self.all_sprites:
+			if isinstance(sprite, Mob):
+				sprite.draw_health()
 			self.screen.blit(sprite.image, self.camera.apply(sprite))
+		#HUD functions
+		draw_player_health(self.screen, 10, 10, self.player.health / PLAYER_HEALTH)
 		pg.display.flip()
 
 	def events(self):
@@ -85,9 +123,9 @@ class Game:
 		for event in pg.event.get():
 			if event.type == pg.QUIT:
 				self.playing = False
-			if event.type == pg.KEYDOWN:
-				if event.key == pg.K_ESCAPE:
-					self.playing = False
+		keys = pg.key.get_pressed()
+		if keys[pg.K_ESCAPE]:
+			self.playing = False
 	
 	def show_start_screen(self):
 		pass

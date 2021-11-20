@@ -23,6 +23,7 @@ GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
 
 #Player settings
+PLAYER_HEALTH = 100
 PLAYER_SPEED = 300 #pixel per sec
 """ PLAYER_ROT_SPEED = 250 """
 PLAYER_IMG_RIGHT = 'Player/player_side/tile029.png'
@@ -43,11 +44,15 @@ BULLET_LIFETIME = 1500
 BULLET_RATE = 150
 KICKBACK = 200
 GUN_SPREAD = 5
+BULLET_DAMAGE = 10
 
 WALL_IMG = 'Buildings/wall.png'
 
 #Mob settings
 #mob sprites only have 4 directions :3
+MOB_HEALTH = 100
+MOB_DAMAGE = 10
+MOB_KNOCKBACK = 20
 MOB_IMG_FRONT = 'Mobs/Cactus/mob_front/tile000.png'
 MOB_IMG_BACK = 'Mobs/Cactus/mob_back/tile000.png'
 MOB_IMG_RIGHT = 'Mobs/Cactus/mob_side/tile000.png'
