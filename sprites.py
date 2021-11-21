@@ -1,10 +1,9 @@
 from random import uniform
 import pygame as pg
 from settings import *
-from tilemap import collide_hit_rect
+from tilemap import *
 from os import path
 
-from tilemap import collide_hit_rect
 vec = pg.math.Vector2
 
 def image(self, game, rot):
@@ -45,6 +44,26 @@ def collide_with_walls(sprite, group, dir):
 				sprite.pos.y = hits[0].rect.top - sprite.hit_rect.height
 			if hits[0].rect.centery < sprite.hit_rect.centery:
 				sprite.pos.y = hits[0].rect.bottom
+			sprite.vel.y = 0
+			sprite.hit_rect.y = sprite.pos.y
+
+def collide_with_mobs(sprite, group, dir):
+	if dir == 'x':
+		hits = pg.sprite.spritecollide(sprite, group, False, collide_rect_not_self)
+		if hits:
+			if hits[0].rect.centerx > sprite.hit_rect.centerx:
+				sprite.pos.x = hits[0].rect.left + 2
+			if hits[0].rect.centerx < sprite.hit_rect.centerx:
+				sprite.pos.x = hits[0].rect.right - sprite.hit_rect.width
+			sprite.vel.x = 0
+			sprite.hit_rect.x = sprite.pos.x
+	if dir == 'y':
+		hits = pg.sprite.spritecollide(sprite, group, False, collide_rect_not_self)
+		if hits:
+			if hits[0].rect.centery > sprite.hit_rect.centery:
+				sprite.pos.y = hits[0].rect.top
+			if hits[0].rect.centery < sprite.hit_rect.centery:
+				sprite.pos.y = hits[0].rect.bottom - 18
 			sprite.vel.y = 0
 			sprite.hit_rect.y = sprite.pos.y
 
@@ -139,7 +158,6 @@ class Mob(pg.sprite.Sprite):
 		self.pos = vec(x, y)
 		self.vel = vec(0, 0)
 		self.acc = vec(0, 0)
-		self.rect.center = self.pos
 		self.rot = 0
 		self.health = MOB_HEALTH
 	
@@ -163,10 +181,11 @@ class Mob(pg.sprite.Sprite):
 		self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt **2
 		self.hit_rect.x = self.pos.x
 		collide_with_walls(self, self.game.walls, 'x')
+		collide_with_mobs(self, self.game.mobs, 'x')
 		self.hit_rect.y = self.pos.y
 		collide_with_walls(self, self.game.walls, 'y')
-		self.rect.center = self.hit_rect.center
-		self.rect.move_ip(0, -20)
+		collide_with_mobs(self, self.game.mobs, 'y')
+		self.rect.move_ip(10, -14)
 		if self.health <= 0:
 			self.kill()
 

@@ -16,7 +16,7 @@ def draw_player_health(surf, x, y, pct):
 	BAR_HEIGHT = 20
 	fill = pct * BAR_LENGTH
 	outline_rect = pg.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
-	fill_rect = pg.Rect(x, y, fill, BAR_HEIGHT)
+	fill_rect = pg.Rect(x, y, int(fill), BAR_HEIGHT)
 	if pct > 0.6:
 		col = GREEN
 	elif pct > 0.3:
@@ -106,11 +106,11 @@ class Game:
 			hit.health -= BULLET_DAMAGE
 			hit.vel = vec(0,0)
 	
-	def draw_grid(self):
+	""" def draw_grid(self):
 		for x in range(0, WIDTH, TILESIZE):
 			pg.draw.line(self.screen, LIGHTGREY, (x, 0), (x, HEIGHT))
 		for y in range(0, HEIGHT, TILESIZE):
-			pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
+			pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y)) """
 	
 	def draw(self):
 		pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
@@ -121,8 +121,16 @@ class Game:
 			if isinstance(sprite, Mob):
 				sprite.draw_health()
 			self.screen.blit(sprite.image, self.camera.apply(sprite))
+		#part to debug with h key
 			if self.draw_debug:
 				pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
+		#part so mob dont get over player and each other
+		for sprite_mob in self.mobs:
+			if self.player.hit_rect.y > sprite_mob.hit_rect.y:
+				self.screen.blit(self.player.image, self.camera.apply(self.player))
+			for sprite_mob2 in self.mobs:
+				if sprite_mob != sprite_mob2 and sprite_mob.hit_rect.y > sprite_mob2.hit_rect.y:
+					self.screen.blit(sprite_mob.image, self.camera.apply(sprite_mob))
 		if self.draw_debug:
 			for wall in self.walls:
 				pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(wall.rect), 1)
