@@ -39,7 +39,7 @@ class Game:
 		game_folder = path.dirname(__file__)
 		img_folder = path.join(game_folder, 'img')
 		map_folder = path.join(game_folder, 'maps')
-		self.map = TiledMap(path.join(map_folder, 'level1.tmx'))
+		self.map = TiledMap(path.join(map_folder, 'home.tmx'))
 		self.map_img = self.map.make_map()
 		self.map_rect = self.map_img.get_rect()
 		self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG_RIGHT)).convert_alpha()
@@ -63,8 +63,15 @@ class Game:
 					Mob(self, col, row)
 				if tile == 'P':
 					self.player = Player(self, col, row) """
-		self.player = Player(self, 11.5, 5)
+		for tile_object in self.map.tmxdata.objects:
+			if tile_object.name == 'player':
+				self.player = Player(self, tile_object.x, tile_object.y)
+			if tile_object.name == 'mob':
+				Mob(self, tile_object.x, tile_object.y)
+			if tile_object.name == 'wall':
+				Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
 		self.camera = Camera(self.map.width, self.map.height)
+		self.draw_debug = False
 
 	def run(self):
 		self.playing = True
@@ -76,9 +83,9 @@ class Game:
 		self.quit()
 
 	def	quit(self):
-		""" pg.display.quit() """
+		pg.display.quit()
 		pg.quit()
-		exit()
+		sys.exit()
 
 	def update(self):
 		#update portion of the game loop
@@ -114,6 +121,11 @@ class Game:
 			if isinstance(sprite, Mob):
 				sprite.draw_health()
 			self.screen.blit(sprite.image, self.camera.apply(sprite))
+			if self.draw_debug:
+				pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
+		if self.draw_debug:
+			for wall in self.walls:
+				pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(wall.rect), 1)
 		#HUD functions
 		draw_player_health(self.screen, 10, 10, self.player.health / PLAYER_HEALTH)
 		pg.display.flip()
@@ -123,6 +135,9 @@ class Game:
 		for event in pg.event.get():
 			if event.type == pg.QUIT:
 				self.playing = False
+			if event.type == pg.KEYDOWN:
+				if event.key == pg.K_h:
+					self.draw_debug = not self.draw_debug
 		keys = pg.key.get_pressed()
 		if keys[pg.K_ESCAPE]:
 			self.playing = False

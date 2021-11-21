@@ -5,7 +5,7 @@ from settings import *
 from settings import TILESIZE
 
 def collide_hit_rect(one, two):
-	return one.hit_rect.colliderect(two.rect)
+	return one.hit_rect.colliderect(two.hit_rect)
 
 """ class Map:
 	def __init__(self, filename):

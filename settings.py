@@ -7,6 +7,7 @@ BLACK = (0, 0, 0)
 DARKGREY = (40, 40, 40)
 LIGHTGREY = (100, 100, 100)
 GREEN = (0, 255, 0)
+CYAN = (0, 255, 255)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 BROWN = (255, 222, 142)
@@ -34,7 +35,7 @@ PLAYER_IMG_DOWN_R = 'Player/player_angle_1/tile029.png'
 PLAYER_IMG_DOWN_L = 'Player/player_angle_1/rev29.png'
 PLAYER_IMG_UP_R = 'Player/player_angle_2/tile029.png'
 PLAYER_IMG_UP_L = 'Player/player_angle_2/rev29.png'
-PLAYER_HIT_RECT = pg.Rect(0 , 0, 25, 48)
+PLAYER_HIT_RECT = pg.Rect(0 , 0, 20, 20) #25,48
 BARREL_OFFSET = vec(20, 8)
 
 #Gun settings
@@ -58,4 +59,4 @@ MOB_IMG_BACK = 'Mobs/Cactus/mob_back/tile000.png'
 MOB_IMG_RIGHT = 'Mobs/Cactus/mob_side/tile000.png'
 MOB_IMG_LEFT = 'Mobs/Cactus/mob_side/rev00.png'
 MOB_SPEED = 150
-MOB_HIT_RECT = pg.Rect(0, 0, 20, 45)
+MOB_HIT_RECT = pg.Rect(0, 0, 20, 20)
