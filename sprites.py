@@ -6,26 +6,43 @@ from os import path
 
 vec = pg.math.Vector2
 
-def image(self, game, rot):
+def image(self, game, rot, fire):
 		self.image = game.player_img
 		game_folder = path.dirname(__file__)
 		img_folder = path.join(game_folder, 'img')
 		if rot == 0:
 			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_RIGHT)).convert_alpha()
+			if fire:
+				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_RIGHT)).convert_alpha()
 		if rot == 45:
 			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_DOWN_R)).convert_alpha()
+			if fire:
+				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_DOWN_R)).convert_alpha()
 		if rot == 90:
 			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_DOWN)).convert_alpha()
+			if fire:
+				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_DOWN)).convert_alpha()
 		if rot == 135:
 			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_DOWN_L)).convert_alpha()
+			if fire:
+				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_DOWN_L)).convert_alpha()
 		if rot == 180:
 			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_LEFT)).convert_alpha()
+			if fire:
+				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_LEFT)).convert_alpha()
 		if rot == 225:
 			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_UP_L)).convert_alpha()
+			if fire:
+				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_UP_L)).convert_alpha()
 		if rot == 270:
 			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_UP)).convert_alpha()
+			if fire:
+				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_UP)).convert_alpha()
 		if rot == 315:
 			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_UP_R)).convert_alpha()
+			if fire:
+				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_UP_R)).convert_alpha()
+		return False
 
 def collide_with_walls(sprite, group, dir):
 	if dir == 'x':
@@ -47,26 +64,6 @@ def collide_with_walls(sprite, group, dir):
 			sprite.vel.y = 0
 			sprite.hit_rect.y = sprite.pos.y
 
-def collide_with_mobs(sprite, group, dir):
-	if dir == 'x':
-		hits = pg.sprite.spritecollide(sprite, group, False, collide_rect_not_self)
-		if hits:
-			if hits[0].rect.centerx > sprite.hit_rect.centerx:
-				sprite.pos.x = hits[0].rect.left + 2
-			if hits[0].rect.centerx < sprite.hit_rect.centerx:
-				sprite.pos.x = hits[0].rect.right - sprite.hit_rect.width
-			sprite.vel.x = 0
-			sprite.hit_rect.x = sprite.pos.x
-	if dir == 'y':
-		hits = pg.sprite.spritecollide(sprite, group, False, collide_rect_not_self)
-		if hits:
-			if hits[0].rect.centery > sprite.hit_rect.centery:
-				sprite.pos.y = hits[0].rect.top
-			if hits[0].rect.centery < sprite.hit_rect.centery:
-				sprite.pos.y = hits[0].rect.bottom - 18
-			sprite.vel.y = 0
-			sprite.hit_rect.y = sprite.pos.y
-
 class Player(pg.sprite.Sprite):
 	def __init__(self, game, x, y):
 		self.groups = game.all_sprites
@@ -74,11 +71,13 @@ class Player(pg.sprite.Sprite):
 		self.game = game
 		self.image = game.player_img
 		self.rect = self.image.get_rect()
+		self.rect.center = (x, y)
 		self.hit_rect = PLAYER_HIT_RECT
 		self.hit_rect.center = self.rect.center
 		self.vel = vec(0, 0)
 		self.pos = vec(x, y)
 		self.rot = 0
+		self.fire = False
 		self.last_shot = 0
 		self.last_time = 0
 		self.health = PLAYER_HEALTH
@@ -118,9 +117,11 @@ class Player(pg.sprite.Sprite):
 			self.rot = 225
 		if self.vel.x != 0 and self.vel.y != 0:
 			self.vel *= 0.7071
+	#part for shooting
 		if keys[pg.K_SPACE] or keys[pg.K_z]:
 			now = pg.time.get_ticks()
 			if now - self.last_shot > BULLET_RATE:
+				self.fire = True
 				self.last_shot = now
 				dir = vec(1, 0).rotate(self.rot)
 				pos = self.rect.center + BARREL_OFFSET.rotate(self.rot)
@@ -144,7 +145,7 @@ class Player(pg.sprite.Sprite):
 		collide_with_walls(self, self.game.walls, 'y')
 		self.rect.center = self.hit_rect.center
 		self.rect.move_ip(0, -20)
-		image(self, self.game, self.rot)
+		self.fire = image(self, self.game, self.rot, self.fire)
 
 class Mob(pg.sprite.Sprite):
 	def __init__(self, game, x, y):
@@ -153,6 +154,7 @@ class Mob(pg.sprite.Sprite):
 		self.game = game
 		self.image = game.mob_img
 		self.rect = self.image.get_rect()
+		self.rect.center = (x, y)
 		self.hit_rect = MOB_HIT_RECT.copy()
 		self.hit_rect.center = self.rect.center
 		self.pos = vec(x, y)
@@ -161,6 +163,13 @@ class Mob(pg.sprite.Sprite):
 		self.rot = 0
 		self.health = MOB_HEALTH
 	
+	def avoid_mobs(self):
+		for mob in self.game.mobs:
+			if mob != self:
+				dist = self.pos - mob.pos
+				if 0 < dist.length() < AVOID_RADIUS:
+					self.acc += dist.normalize()
+
 	def update(self):
 		game_folder = path.dirname(__file__)
 		img_folder = path.join(game_folder, 'img')
@@ -175,16 +184,16 @@ class Mob(pg.sprite.Sprite):
 			self.image = pg.image.load(path.join(img_folder, MOB_IMG_RIGHT)).convert_alpha()
 		self.rect = self.image.get_rect()
 		self.rect.center = self.pos
-		self.acc = vec(MOB_SPEED, 0).rotate(-self.rot)
+		self.acc = vec(1, 0).rotate(-self.rot)
+		self.avoid_mobs()
+		self.acc.scale_to_length(MOB_SPEED)
 		self.acc += self.vel * -1
 		self.vel += self.acc * self.game.dt
 		self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt **2
 		self.hit_rect.x = self.pos.x
 		collide_with_walls(self, self.game.walls, 'x')
-		collide_with_mobs(self, self.game.mobs, 'x')
 		self.hit_rect.y = self.pos.y
 		collide_with_walls(self, self.game.walls, 'y')
-		collide_with_mobs(self, self.game.mobs, 'y')
 		self.rect.move_ip(10, -14)
 		if self.health <= 0:
 			self.kill()

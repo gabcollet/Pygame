@@ -7,10 +7,6 @@ from settings import TILESIZE
 def collide_hit_rect(one, two):
 	return one.hit_rect.colliderect(two.hit_rect)
 
-def collide_rect_not_self(one, two):
-    if one != two:
-        return one.hit_rect.colliderect(two.hit_rect)
-
 """ class Map:
 	def __init__(self, filename):
 		self.data = []
@@ -58,7 +54,7 @@ class Camera:
 
 	def update(self, target):
 		x = -target.rect.x + int(WIDTH / 2)
-		y = -target.rect.y + int(WIDTH / 3)
+		y = -target.rect.y + int(WIDTH / 4)
 
 		# limit scrolling at map size
 		x = min(0, x) #left
