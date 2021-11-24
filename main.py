@@ -42,27 +42,21 @@ class Game:
 		self.map = TiledMap(path.join(map_folder, 'home.tmx'))
 		self.map_img = self.map.make_map()
 		self.map_rect = self.map_img.get_rect()
-		self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG_RIGHT)).convert_alpha()
-		self.mob_img = pg.image.load(path.join(img_folder, MOB_IMG_FRONT)).convert_alpha()
+		self.player_img = []
+		for img in PLAYER_IMG:
+			self.player_img.append(pg.image.load(path.join(img_folder, img)).convert_alpha())
+		self.mob_img = pg.image.load(path.join(img_folder, MOB_IMG_FRONT)).convert_alpha()	
 		self.bullet_img = pg.image.load(path.join(img_folder, BULLET_IMG)).convert_alpha()
-		""" self.wall_img = pg.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
-		self.wall_img = pg.transform.scale(self.wall_img, (TILESIZE, TILESIZE)) """
+		self.tree_img = []
+		for img in TREE_IMG:
+			self.tree_img.append(pg.image.load(path.join(img_folder, img)).convert_alpha())
 
 	def	new(self):
 		#sert a initié les variables pour un nouveau jeu
-		self.all_sprites = pg.sprite.Group()
+		self.all_sprites = pg.sprite.LayeredUpdates()
 		self.walls = pg.sprite.Group()
 		self.mobs = pg.sprite.Group()
 		self.bullets = pg.sprite.Group()
-		#sert a faire apparaitre les murs
-		""" for row, tiles in enumerate(self.map.data):
-			for col, tile in enumerate(tiles):
-				if tile == '1':
-					Wall(self, col, row)
-				if tile == 'M':
-					Mob(self, col, row)
-				if tile == 'P':
-					self.player = Player(self, col, row) """
 		for tile_object in self.map.tmxdata.objects:
 			if tile_object.name == 'player':
 				self.player = Player(self, tile_object.x, tile_object.y)
@@ -70,6 +64,10 @@ class Game:
 				Mob(self, tile_object.x, tile_object.y)
 			if tile_object.name == 'wall':
 				Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
+			if tile_object.name == 'tree_green':
+				Tree(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height, "green")
+			if tile_object.name == 'tree_red':
+				Tree(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height, "red")
 		self.camera = Camera(self.map.width, self.map.height)
 		self.draw_debug = False
 
@@ -106,17 +104,9 @@ class Game:
 			hit.health -= BULLET_DAMAGE
 			hit.vel = vec(0,0)
 	
-	""" def draw_grid(self):
-		for x in range(0, WIDTH, TILESIZE):
-			pg.draw.line(self.screen, LIGHTGREY, (x, 0), (x, HEIGHT))
-		for y in range(0, HEIGHT, TILESIZE):
-			pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y)) """
-	
 	def draw(self):
 		pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
-		""" self.screen.fill(BGCOLOR) """
 		self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
-		""" self.draw_grid() """
 		for sprite in self.all_sprites:
 			if isinstance(sprite, Mob):
 				sprite.draw_health()
@@ -127,10 +117,9 @@ class Game:
 		#part so mob dont get over player and each other
 		for sprite_mob in self.mobs:
 			if self.player.hit_rect.y > sprite_mob.hit_rect.y:
-				self.screen.blit(self.player.image, self.camera.apply(self.player))
-			for sprite_mob2 in self.mobs:
-				if sprite_mob != sprite_mob2 and sprite_mob.hit_rect.y > sprite_mob2.hit_rect.y:
-					self.screen.blit(sprite_mob.image, self.camera.apply(sprite_mob))
+				self.all_sprites.change_layer(self.player, 4)
+			else:
+				self.all_sprites.change_layer(self.player, 2)
 		if self.draw_debug:
 			for wall in self.walls:
 				pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(wall.rect), 1)

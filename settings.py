@@ -31,22 +31,14 @@ PLAYER_HIT_RECT = pg.Rect(0 , 0, 20, 20)
 BARREL_OFFSET = vec(20, 8)
 
 #Player sprites
-PLAYER_IMG_RIGHT = 'Player/player_side/tile029.png'
-PLAYER_FIRING_RIGHT = 'Player/player_side/tile030.png'
-PLAYER_IMG_LEFT = 'Player/player_side/rev29.png'
-PLAYER_FIRING_LEFT = 'Player/player_side/rev30.png'
-PLAYER_IMG_DOWN = 'Player/player_front/tile029.png'
-PLAYER_FIRING_DOWN = 'Player/player_front/tile030.png'
-PLAYER_IMG_UP = 'Player/player_back/tile029.png'
-PLAYER_FIRING_UP = 'Player/player_back/tile030.png'
-PLAYER_IMG_DOWN_R = 'Player/player_angle_1/tile029.png'
-PLAYER_FIRING_DOWN_R = 'Player/player_angle_1/tile030.png'
-PLAYER_IMG_DOWN_L = 'Player/player_angle_1/rev29.png'
-PLAYER_FIRING_DOWN_L = 'Player/player_angle_1/rev30.png'
-PLAYER_IMG_UP_R = 'Player/player_angle_2/tile029.png'
-PLAYER_FIRING_UP_R = 'Player/player_angle_2/tile030.png'
-PLAYER_IMG_UP_L = 'Player/player_angle_2/rev29.png'
-PLAYER_FIRING_UP_L = 'Player/player_angle_2/rev30.png'
+PLAYER_IMG = ['Player/player_side/tile029.png', 'Player/player_side/tile030.png',
+				'Player/player_angle_1/tile029.png', 'Player/player_angle_1/tile030.png',
+				'Player/player_front/tile029.png', 'Player/player_front/tile030.png',
+				'Player/player_angle_1/rev29.png', 'Player/player_angle_1/rev30.png',
+				'Player/player_side/rev29.png', 'Player/player_side/rev30.png',
+				'Player/player_angle_2/rev29.png', 'Player/player_angle_2/rev30.png',
+				'Player/player_back/tile029.png', 'Player/player_back/tile030.png',
+				'Player/player_angle_2/tile029.png', 'Player/player_angle_2/tile030.png']
 
 #Gun settings
 BULLET_IMG = 'Player/bullet1.png'
@@ -68,7 +60,20 @@ MOB_HIT_RECT = pg.Rect(0, 0, 20, 20)
 AVOID_RADIUS = 50
 
 #mob sprites only have 4 directions :3
+""" MOB_IMG = ['Mobs/Cactus/mob_front/tile000.png', 'Mobs/Cactus/mob_back/tile000.png',
+			'Mobs/Cactus/mob_side/tile000.png', 'Mobs/Cactus/mob_side/rev00.png'] """
 MOB_IMG_FRONT = 'Mobs/Cactus/mob_front/tile000.png'
 MOB_IMG_BACK = 'Mobs/Cactus/mob_back/tile000.png'
 MOB_IMG_RIGHT = 'Mobs/Cactus/mob_side/tile000.png'
 MOB_IMG_LEFT = 'Mobs/Cactus/mob_side/rev00.png'
+
+TREE_IMG = ['tree_green.png', 'tree_red.png']
+
+#Layers
+WALL_LAYER = 1
+PLAYER_LAYER = 2
+MOB_LAYER = 3
+SPACE_LAYER = 4
+BULLET_LAYER = 5
+TREE_LAYER = 6
+EFFECTS_LAYER = 6

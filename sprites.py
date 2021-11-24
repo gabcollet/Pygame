@@ -6,42 +6,27 @@ from os import path
 
 vec = pg.math.Vector2
 
-def image(self, game, rot, fire):
-		self.image = game.player_img
-		game_folder = path.dirname(__file__)
-		img_folder = path.join(game_folder, 'img')
+def image(self, rot, fire):
+		image = 0
 		if rot == 0:
-			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_RIGHT)).convert_alpha()
-			if fire:
-				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_RIGHT)).convert_alpha()
+			image = 0
 		if rot == 45:
-			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_DOWN_R)).convert_alpha()
-			if fire:
-				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_DOWN_R)).convert_alpha()
+			image = 2
 		if rot == 90:
-			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_DOWN)).convert_alpha()
-			if fire:
-				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_DOWN)).convert_alpha()
+			image = 4
 		if rot == 135:
-			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_DOWN_L)).convert_alpha()
-			if fire:
-				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_DOWN_L)).convert_alpha()
+			image = 6
 		if rot == 180:
-			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_LEFT)).convert_alpha()
-			if fire:
-				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_LEFT)).convert_alpha()
+			image = 8
 		if rot == 225:
-			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_UP_L)).convert_alpha()
-			if fire:
-				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_UP_L)).convert_alpha()
+			image = 10
 		if rot == 270:
-			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_UP)).convert_alpha()
-			if fire:
-				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_UP)).convert_alpha()
+			image = 12
 		if rot == 315:
-			self.image = pg.image.load(path.join(img_folder, PLAYER_IMG_UP_R)).convert_alpha()
-			if fire:
-				self.image = pg.image.load(path.join(img_folder, PLAYER_FIRING_UP_R)).convert_alpha()
+			image = 14
+		if fire:
+			image += 1
+		self.image = self.game.player_img[image]
 		return False
 
 def collide_with_walls(sprite, group, dir):
@@ -66,10 +51,11 @@ def collide_with_walls(sprite, group, dir):
 
 class Player(pg.sprite.Sprite):
 	def __init__(self, game, x, y):
+		self._layer = PLAYER_LAYER
 		self.groups = game.all_sprites
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
-		self.image = game.player_img
+		self.image = game.player_img[0]
 		self.rect = self.image.get_rect()
 		self.rect.center = (x, y)
 		self.hit_rect = PLAYER_HIT_RECT
@@ -145,10 +131,11 @@ class Player(pg.sprite.Sprite):
 		collide_with_walls(self, self.game.walls, 'y')
 		self.rect.center = self.hit_rect.center
 		self.rect.move_ip(0, -20)
-		self.fire = image(self, self.game, self.rot, self.fire)
+		self.fire = image(self, self.rot, self.fire)
 
 class Mob(pg.sprite.Sprite):
 	def __init__(self, game, x, y):
+		self._layer = MOB_LAYER
 		self.groups = game.all_sprites, game.mobs
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
@@ -199,19 +186,21 @@ class Mob(pg.sprite.Sprite):
 			self.kill()
 
 	def draw_health(self):
-		if self.health > 60:
-			col = GREEN
-		elif self.health > 30:
-			col = YELLOW
-		else:
-			col = RED
-		width = int(self.rect.width * self.health / MOB_HEALTH)
-		self.health_bar = pg.Rect(0, 0, width, 7)
-		if self.health < MOB_HEALTH:
-			pg.draw.rect(self.image, col, self.health_bar)
+		for mob in self.game.mobs:
+			if mob.health > 60:
+				col = GREEN
+			elif mob.health > 30:
+				col = YELLOW
+			else:
+				col = RED
+			width = int(mob.rect.width * mob.health / MOB_HEALTH)
+			mob.health_bar = pg.Rect(0, 0, width, 7)
+			if mob.health < MOB_HEALTH:
+				pg.draw.rect(mob.image, col, mob.health_bar)
 
 class Bullet(pg.sprite.Sprite):
 	def __init__(self, game, pos, dir):
+		self._layer = BULLET_LAYER
 		self.groups = game.all_sprites, game.bullets
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
@@ -232,20 +221,9 @@ class Bullet(pg.sprite.Sprite):
 		if pg.time.get_ticks() - self.spawn_time > BULLET_LIFETIME:
 			self.kill()
 
-""" class Wall(pg.sprite.Sprite):
-	def __init__(self, game, x, y):
-		self.groups = game.all_sprites, game.walls
-		pg.sprite.Sprite.__init__(self, self.groups)
-		self.game = game
-		self.image = game.wall_img
-		self.rect = self.image.get_rect()
-		self.x = x
-		self.y = y
-		self.rect.x = x * TILESIZE
-		self.rect.y = y * TILESIZE """
-
 class Obstacle(pg.sprite.Sprite):
 	def __init__(self, game, x, y, w, h):
+		self._layer = WALL_LAYER
 		self.groups = game.walls
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
@@ -256,5 +234,21 @@ class Obstacle(pg.sprite.Sprite):
 		self.rect.x = x
 		self.rect.y = y
 
+class Tree(pg.sprite.Sprite):
+	def __init__(self, game, x, y, w, h, type):
+		self._layer = TREE_LAYER
+		self.groups = game.all_sprites
+		pg.sprite.Sprite.__init__(self, self.groups)
+		self.game = game
+		self.rect = pg.Rect(x, y, w, h)
+		self.x = x
+		self.y = y
+		self.rect.x = x - 15
+		self.rect.y = y - 15
+		if type == "green":
+			self.image = game.tree_img[0]
+		elif type == "red":
+			self.rect.y = y - 18
+			self.image = game.tree_img[1]
+		self.hit_rect = self.rect
 
-		
