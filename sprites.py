@@ -67,7 +67,9 @@ class Player(pg.sprite.Sprite):
 		self.fire = False
 		self.last_shot = 0
 		self.last_time = 0
+		self.boost_time = 0
 		self.health = PLAYER_HEALTH
+		self.speed = PLAYER_SPEED
 
 	def	get_keys(self):
 		self.vel = vec(0, 0)
@@ -75,22 +77,22 @@ class Player(pg.sprite.Sprite):
 		keys = pg.key.get_pressed()
 		time = pg.time.get_ticks()
 		if keys[pg.K_LEFT] or keys[pg.K_a]:
-			self.vel.x = -PLAYER_SPEED
+			self.vel.x = -self.speed
 			if time - self.last_time > FPS:
 				self.rot = 180
 				self.last_time = time
 		if keys[pg.K_RIGHT] or keys[pg.K_d]:
-			self.vel.x = PLAYER_SPEED
+			self.vel.x = self.speed
 			if time - self.last_time > FPS:
 				self.rot = 0
 				self.last_time = time
 		if keys[pg.K_UP] or keys[pg.K_w]:
-			self.vel.y = -PLAYER_SPEED
+			self.vel.y = -self.speed
 			if time - self.last_time > FPS:
 				self.rot = 270
 				self.last_time = time
 		if keys[pg.K_DOWN] or keys[pg.K_s]:
-			self.vel.y = PLAYER_SPEED
+			self.vel.y = self.speed
 			if time - self.last_time > FPS:
 				self.rot = 90
 				self.last_time = time
@@ -133,11 +135,18 @@ class Player(pg.sprite.Sprite):
 		self.rect.center = self.hit_rect.center
 		self.rect.move_ip(0, -20)
 		self.fire = image(self, self.rot, self.fire)
+		time = pg.time.get_ticks()
+		if time - self.boost_time > BOOST_TIME * 1000:
+			self.speed = PLAYER_SPEED
 
-	def add_health(self, amount):
-		self.health += amount
+	def add_health(self):
+		self.health += HEALTH_PACK_AMOUNT
 		if self.health > PLAYER_HEALTH:
 			self.health = PLAYER_HEALTH
+	
+	def speed_boost(self):
+		self.speed = PLAYER_SPEED * 2
+		self.boost_time = pg.time.get_ticks()
 
 class Mob(pg.sprite.Sprite):
 	def __init__(self, game, x, y):

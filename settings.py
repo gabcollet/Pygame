@@ -77,7 +77,9 @@ EFFECTS_LAYER = 6
 ITEM_LAYER = 1
 
 #Items
-ITEM_IMAGES = {'health' : 'Items/HeartMoving1.png'}
+ITEM_IMAGES = {'health' : 'Items/HeartMoving1.png',
+				'speed' : 'Items/ChickenThighMoving1.png'}
 HEALTH_PACK_AMOUNT = 50
+BOOST_TIME = 6 #in sec
 BOB_RANGE = 15 #in pixel
 BOB_SPEED = 0.4

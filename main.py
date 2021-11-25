@@ -74,7 +74,7 @@ class Game:
 				Tree(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height, "green")
 			if tile_object.name == 'tree_red':
 				Tree(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height, "red")
-			if tile_object.name in ['health']:
+			if tile_object.name in ['health', 'speed']:
 				Item(self, obj_center, tile_object.name)
 		self.camera = Camera(self.map.width, self.map.height)
 		self.draw_debug = False
@@ -102,7 +102,10 @@ class Game:
 		for hit in hits:
 			if hit.type == 'health' and self.player.health < PLAYER_HEALTH:
 				hit.kill()
-				self.player.add_health(HEALTH_PACK_AMOUNT)
+				self.player.add_health()
+			if hit.type == 'speed':
+				hit.kill()
+				self.player.speed_boost()
 		#mobs hit player
 		hits = pg.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
 		for hit in hits:
