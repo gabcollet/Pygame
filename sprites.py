@@ -3,6 +3,7 @@ import pygame as pg
 from settings import *
 from tilemap import *
 from os import path
+import pytweening as tween
 
 vec = pg.math.Vector2
 
@@ -133,6 +134,11 @@ class Player(pg.sprite.Sprite):
 		self.rect.move_ip(0, -20)
 		self.fire = image(self, self.rot, self.fire)
 
+	def add_health(self, amount):
+		self.health += amount
+		if self.health > PLAYER_HEALTH:
+			self.health = PLAYER_HEALTH
+
 class Mob(pg.sprite.Sprite):
 	def __init__(self, game, x, y):
 		self._layer = MOB_LAYER
@@ -252,3 +258,26 @@ class Tree(pg.sprite.Sprite):
 			self.image = game.tree_img[1]
 		self.hit_rect = self.rect
 
+class Item(pg.sprite.Sprite):
+	def __init__(self, game, pos, type):
+		self._layer = ITEM_LAYER
+		self.groups = game.all_sprites, game.items
+		pg.sprite.Sprite.__init__(self, self.groups)
+		self.game = game
+		self.image = game.item_images[type]
+		self.rect = self.image.get_rect()
+		self.type = type
+		self.pos = pos
+		self.rect.center = pos
+		self.tween = tween.easeInOutSine
+		self.step = 0
+		self.dir = 1
+
+	def update(self):
+		#bobbing motion
+		offset = BOB_RANGE * (self.tween(self.step / BOB_RANGE) - 0.5)
+		self.rect.centery = self.pos.y + offset * self.dir
+		self.step += BOB_SPEED
+		if self.step > BOB_RANGE:
+			self.step = 0
+			self.dir *= -1

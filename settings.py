@@ -26,7 +26,6 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 #Player settings
 PLAYER_HEALTH = 100
 PLAYER_SPEED = 300 #pixel per sec
-""" PLAYER_ROT_SPEED = 250 """
 PLAYER_HIT_RECT = pg.Rect(0 , 0, 20, 20)
 BARREL_OFFSET = vec(20, 8)
 
@@ -48,8 +47,6 @@ BULLET_RATE = 150
 KICKBACK = 200
 GUN_SPREAD = 5
 BULLET_DAMAGE = 10
-
-""" WALL_IMG = 'Buildings/wall.png' """
 
 #Mob settings
 MOB_HEALTH = 100
@@ -77,3 +74,10 @@ SPACE_LAYER = 4
 BULLET_LAYER = 5
 TREE_LAYER = 6
 EFFECTS_LAYER = 6
+ITEM_LAYER = 1
+
+#Items
+ITEM_IMAGES = {'health' : 'Items/HeartMoving1.png'}
+HEALTH_PACK_AMOUNT = 50
+BOB_RANGE = 15 #in pixel
+BOB_SPEED = 0.4
