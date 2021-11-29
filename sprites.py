@@ -1,4 +1,4 @@
-from random import uniform
+from random import uniform, choice, random
 import pygame as pg
 from settings import *
 from tilemap import *
@@ -124,6 +124,7 @@ class Player(pg.sprite.Sprite):
 					pos = pos + vec(-9, 14)
 				Bullet(self.game, pos, dir)
 				self.vel = vec(-KICKBACK, 0).rotate(self.rot)
+				choice(self.game.weapon_sounds).play()
 
 	def update(self):
 		self.get_keys()
@@ -154,16 +155,20 @@ class Mob(pg.sprite.Sprite):
 		self.groups = game.all_sprites, game.mobs
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
-		self.image = game.mob_img
+		self.image = game.mob_img[0].copy()
 		self.rect = self.image.get_rect()
 		self.rect.center = (x, y)
+		self.rect.move_ip(10, -14)
 		self.hit_rect = MOB_HIT_RECT.copy()
 		self.hit_rect.center = self.rect.center
+		self.hit_rect.move_ip(0, 24)
 		self.pos = vec(x, y)
 		self.vel = vec(0, 0)
 		self.acc = vec(0, 0)
 		self.rot = 0
 		self.health = MOB_HEALTH
+		self.target = game.player
+		self.saved_image = self.image
 	
 	def avoid_mobs(self):
 		for mob in self.game.mobs:
@@ -175,29 +180,37 @@ class Mob(pg.sprite.Sprite):
 	def update(self):
 		game_folder = path.dirname(__file__)
 		img_folder = path.join(game_folder, 'img')
-		self.rot = (self.game.player.pos - self.pos).angle_to(vec(1, 0))
-		if self.rot > -135 and self.rot < -45:
-			self.image = pg.image.load(path.join(img_folder, MOB_IMG_FRONT)).convert_alpha()
-		if self.rot < 135 and self.rot > 45:
-			self.image = pg.image.load(path.join(img_folder, MOB_IMG_BACK)).convert_alpha()
-		if self.rot > 135 or self.rot < -135:
-			self.image = pg.image.load(path.join(img_folder, MOB_IMG_LEFT)).convert_alpha()
-		if self.rot < 45 and self.rot > -45:
-			self.image = pg.image.load(path.join(img_folder, MOB_IMG_RIGHT)).convert_alpha()
-		self.rect = self.image.get_rect()
-		self.rect.center = self.pos
-		self.acc = vec(1, 0).rotate(-self.rot)
-		self.avoid_mobs()
-		self.acc.scale_to_length(MOB_SPEED)
-		self.acc += self.vel * -1
-		self.vel += self.acc * self.game.dt
-		self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt **2
-		self.hit_rect.x = self.pos.x
-		collide_with_walls(self, self.game.walls, 'x')
-		self.hit_rect.y = self.pos.y
-		collide_with_walls(self, self.game.walls, 'y')
-		self.rect.move_ip(10, -14)
+		target_dist = self.target.pos - self.pos
+		self.image = self.saved_image.copy()
+		if target_dist.length_squared() < DETECT_RADIUS**2:
+			if random() < 0.005:
+				choice(self.game.zombie_moan_sounds).play()
+			self.rot = target_dist.angle_to(vec(1, 0))
+			if self.rot > -135 and self.rot < -45:
+				self.image = self.game.mob_img[0].copy()
+			if self.rot < 135 and self.rot > 45:
+				self.image = self.game.mob_img[1].copy()
+			if self.rot > 135 or self.rot < -135:
+				self.image = self.game.mob_img[3].copy()
+			if self.rot < 45 and self.rot > -45:
+				self.image = self.game.mob_img[2].copy()
+			self.rect = self.image.get_rect()
+			self.rect.center = self.pos
+			self.acc = vec(1, 0).rotate(-self.rot)
+			self.avoid_mobs()
+			if self.acc != 0:
+				self.acc.scale_to_length(MOB_SPEED)
+			self.acc += self.vel * -1
+			self.vel += self.acc * self.game.dt
+			self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt **2
+			self.hit_rect.x = self.pos.x
+			collide_with_walls(self, self.game.walls, 'x')
+			self.hit_rect.y = self.pos.y
+			collide_with_walls(self, self.game.walls, 'y')
+			self.rect.move_ip(10, -14)
+			self.saved_image = self.image.copy()
 		if self.health <= 0:
+			choice(self.game.zombie_hit_sounds).play()
 			self.kill()
 
 	def draw_health(self):
@@ -265,7 +278,8 @@ class Tree(pg.sprite.Sprite):
 		elif type == "red":
 			self.rect.y = y - 18
 			self.image = game.tree_img[1]
-		self.hit_rect = self.rect
+		self.hit_rect = self.rect.copy()
+		self.hit_rect.move_ip(15, 20)
 
 class Item(pg.sprite.Sprite):
 	def __init__(self, game, pos, type):
@@ -276,6 +290,7 @@ class Item(pg.sprite.Sprite):
 		self.image = game.item_images[type]
 		self.rect = self.image.get_rect()
 		self.type = type
+		self.hit_rect = self.rect
 		self.pos = pos
 		self.rect.center = pos
 		self.tween = tween.easeInOutSine

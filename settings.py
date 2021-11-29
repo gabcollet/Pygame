@@ -43,9 +43,9 @@ PLAYER_IMG = ['Player/player_side/tile029.png', 'Player/player_side/tile030.png'
 BULLET_IMG = 'Player/bullet1.png'
 BULLET_SPEED = 1000
 BULLET_LIFETIME = 1500
-BULLET_RATE = 150
+BULLET_RATE = 200
 KICKBACK = 200
-GUN_SPREAD = 5
+GUN_SPREAD = 2
 BULLET_DAMAGE = 10
 
 #Mob settings
@@ -55,14 +55,11 @@ MOB_KNOCKBACK = 20
 MOB_SPEED = 150
 MOB_HIT_RECT = pg.Rect(0, 0, 20, 20)
 AVOID_RADIUS = 50
+DETECT_RADIUS = 750
 
 #mob sprites only have 4 directions :3
-""" MOB_IMG = ['Mobs/Cactus/mob_front/tile000.png', 'Mobs/Cactus/mob_back/tile000.png',
-			'Mobs/Cactus/mob_side/tile000.png', 'Mobs/Cactus/mob_side/rev00.png'] """
-MOB_IMG_FRONT = 'Mobs/Cactus/mob_front/tile000.png'
-MOB_IMG_BACK = 'Mobs/Cactus/mob_back/tile000.png'
-MOB_IMG_RIGHT = 'Mobs/Cactus/mob_side/tile000.png'
-MOB_IMG_LEFT = 'Mobs/Cactus/mob_side/rev00.png'
+MOB_IMG = ['Mobs/Cactus/mob_front/tile000.png', 'Mobs/Cactus/mob_back/tile000.png',
+			'Mobs/Cactus/mob_side/tile000.png', 'Mobs/Cactus/mob_side/rev00.png']
 
 TREE_IMG = ['tree_green.png', 'tree_red.png']
 
@@ -83,3 +80,15 @@ HEALTH_PACK_AMOUNT = 50
 BOOST_TIME = 6 #in sec
 BOB_RANGE = 15 #in pixel
 BOB_SPEED = 0.4
+
+#Sounds
+
+BG_MUSIC = 'Western_Adventures.mp3'
+PLAYER_HIT_SOUNDS = ['pain/8.wav', 'pain/9.wav', 'pain/10.wav', 'pain/11.wav']
+ZOMBIE_MOAN_SOUNDS = ['brains2.wav', 'brains3.wav', 'zombie-roar-1.wav', 'zombie-roar-2.wav',
+						'zombie-roar-3.wav', 'zombie-roar-5.wav', 'zombie-roar-6.wav', 'zombie-roar-7.wav']
+ZOMBIE_HIT_SOUNDS = ['man-dying.wav']
+WEAPON_SOUNDS_GUN = ['gunshot/gunshot-high-1.wav', 'gunshot/gunshot-high-2.wav', 'gunshot/gunshot-high-3.wav',
+					 'gunshot/gunshot-high-4.wav', 'gunshot/gunshot-high-5.wav', 'gunshot/gunshot-high-6.wav']
+EFFECTS_SOUNDS = {'level_start' : 'level_start.wav',
+					'health_up' : 'health_pack.wav'}						
