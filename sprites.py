@@ -2,8 +2,8 @@ from random import uniform, choice, random
 import pygame as pg
 from settings import *
 from tilemap import *
-from os import path
 import pytweening as tween
+from itertools import chain
 
 vec = pg.math.Vector2
 
@@ -27,7 +27,7 @@ def image(self, rot, fire):
 			image = 14
 		if fire:
 			image += 1
-		self.image = self.game.player_img[image]
+		self.image = self.game.player_img[image].copy()
 		return False
 
 def collide_with_walls(sprite, group, dir):
@@ -70,10 +70,11 @@ class Player(pg.sprite.Sprite):
 		self.boost_time = 0
 		self.health = PLAYER_HEALTH
 		self.speed = PLAYER_SPEED
+		self.weapon = 'pistol'
+		self.damage = False
 
 	def	get_keys(self):
 		self.vel = vec(0, 0)
-		dir = 0
 		keys = pg.key.get_pressed()
 		time = pg.time.get_ticks()
 		if keys[pg.K_LEFT] or keys[pg.K_a]:
@@ -108,23 +109,35 @@ class Player(pg.sprite.Sprite):
 			self.vel *= 0.7071
 	#part for shooting
 		if keys[pg.K_SPACE] or keys[pg.K_z]:
-			now = pg.time.get_ticks()
-			if now - self.last_shot > BULLET_RATE:
-				self.fire = True
-				self.last_shot = now
-				dir = vec(1, 0).rotate(self.rot)
-				pos = self.rect.center + BARREL_OFFSET.rotate(self.rot)
-				if self.rot == 180:
-					pos = pos + vec(0, 12)
-				if self.rot == 0:
-					pos = pos + vec(0, -2)
-				if self.rot == 135:
-					pos = pos + vec(12, 6)
-				if self.rot == 225:
-					pos = pos + vec(-9, 14)
-				Bullet(self.game, pos, dir)
-				self.vel = vec(-KICKBACK, 0).rotate(self.rot)
-				choice(self.game.weapon_sounds).play()
+			self.shoot()
+
+	def shoot(self):
+		now = pg.time.get_ticks()
+		if now - self.last_shot > WEAPONS[self.weapon]['rate']:
+			self.fire = True
+			self.last_shot = now
+			dir = vec(1, 0).rotate(self.rot)
+			pos = self.rect.center + BARREL_OFFSET.rotate(self.rot)
+			if self.rot == 180:
+				pos = pos + vec(0, 12)
+			if self.rot == 0:
+				pos = pos + vec(0, -2)
+			if self.rot == 135:
+				pos = pos + vec(12, 6)
+			if self.rot == 225:
+				pos = pos + vec(-9, 14)
+			self.vel = vec(-WEAPONS[self.weapon]['kickback'], 0).rotate(self.rot)
+			for i in range(WEAPONS[self.weapon]['bullet_count']):
+				spread = uniform(-WEAPONS[self.weapon]['spread'], WEAPONS[self.weapon]['spread'])
+				Bullet(self.game, pos, dir.rotate(spread), WEAPONS[self.weapon]['damage'])
+				snd = choice(self.game.weapon_sounds[self.weapon])
+				if snd.get_num_channels() > 2:
+					snd.stop()
+				snd.play()
+
+	def hit(self):
+		self.damage = True
+		self.damage_alpha = chain(DAMAGE_ALPHA * 4)
 
 	def update(self):
 		self.get_keys()
@@ -136,6 +149,11 @@ class Player(pg.sprite.Sprite):
 		self.rect.center = self.hit_rect.center
 		self.rect.move_ip(0, -20)
 		self.fire = image(self, self.rot, self.fire)
+		if self.damage :
+			try:
+				self.image.fill((255, 255, 255, next(self.damage_alpha)), special_flags=pg.BLEND_RGBA_MULT)
+			except:
+				self.damage = False
 		time = pg.time.get_ticks()
 		if time - self.boost_time > BOOST_TIME * 1000:
 			self.speed = PLAYER_SPEED
@@ -178,11 +196,9 @@ class Mob(pg.sprite.Sprite):
 					self.acc += dist.normalize()
 
 	def update(self):
-		game_folder = path.dirname(__file__)
-		img_folder = path.join(game_folder, 'img')
 		target_dist = self.target.pos - self.pos
 		self.image = self.saved_image.copy()
-		if target_dist.length_squared() < DETECT_RADIUS**2:
+		if target_dist.length_squared() < DETECT_RADIUS**2 or self.health < MOB_HEALTH:
 			if random() < 0.005:
 				choice(self.game.zombie_moan_sounds).play()
 			self.rot = target_dist.angle_to(vec(1, 0))
@@ -212,6 +228,7 @@ class Mob(pg.sprite.Sprite):
 		if self.health <= 0:
 			choice(self.game.zombie_hit_sounds).play()
 			self.kill()
+			self.game.map_img.blit(self.game.splat, self.pos - vec(32, 32))
 
 	def draw_health(self):
 		for mob in self.game.mobs:
@@ -227,26 +244,29 @@ class Mob(pg.sprite.Sprite):
 				pg.draw.rect(mob.image, col, mob.health_bar)
 
 class Bullet(pg.sprite.Sprite):
-	def __init__(self, game, pos, dir):
+	def __init__(self, game, pos, dir, damage):
 		self._layer = BULLET_LAYER
 		self.groups = game.all_sprites, game.bullets
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
-		self.image = game.bullet_img
+		self.image = game.bullet_images[WEAPONS[game.player.weapon]['bullet_size']]
 		self.rect = self.image.get_rect()
-		self.hit_rect = self.rect
+		self.hit_rect = self.rect.copy()
 		self.pos = vec(pos)
 		self.rect.center = pos
-		spread = uniform(-GUN_SPREAD, GUN_SPREAD)
-		self.vel = dir.rotate(spread) * BULLET_SPEED
+		self.vel = dir * WEAPONS[game.player.weapon]['bullet_speed'] * uniform(0.9, 1.1)
 		self.spawn_time = pg.time.get_ticks()
+		self.damage = damage
 
 	def update(self):
 		self.pos += self.vel * self.game.dt
-		self.rect.center = self.pos
+		self.hit_rect.x = self.pos.x
+		self.hit_rect.y = self.pos.y
+		self.rect.center = self.hit_rect.center
+		self.hit_rect.move_ip(0, 15)
 		if pg.sprite.spritecollideany(self, self.game.walls):
 			self.kill()
-		if pg.time.get_ticks() - self.spawn_time > BULLET_LIFETIME:
+		if pg.time.get_ticks() - self.spawn_time > WEAPONS[self.game.player.weapon]['bullet_lifetime']:
 			self.kill()
 
 class Obstacle(pg.sprite.Sprite):

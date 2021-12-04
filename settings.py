@@ -16,7 +16,7 @@ BROWN = (255, 222, 142)
 WIDTH = 1920 #grid 32x24
 HEIGHT = 970
 FPS = 60
-TITLE = "Jeu Demo"
+TITLE = "El cazador de cactus"
 BGCOLOR = BROWN
 
 TILESIZE = 64 #use power of 2 ex : 16, 32, 64
@@ -25,7 +25,7 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 
 #Player settings
 PLAYER_HEALTH = 100
-PLAYER_SPEED = 300 #pixel per sec
+PLAYER_SPEED = 1000 #pixel per sec
 PLAYER_HIT_RECT = pg.Rect(0 , 0, 20, 20)
 BARREL_OFFSET = vec(20, 8)
 
@@ -39,17 +39,28 @@ PLAYER_IMG = ['Player/player_side/tile029.png', 'Player/player_side/tile030.png'
 				'Player/player_back/tile029.png', 'Player/player_back/tile030.png',
 				'Player/player_angle_2/tile029.png', 'Player/player_angle_2/tile030.png']
 
-#Gun settings
+#Weapon settings
 BULLET_IMG = 'Player/bullet1.png'
-BULLET_SPEED = 1000
-BULLET_LIFETIME = 1500
-BULLET_RATE = 200
-KICKBACK = 200
-GUN_SPREAD = 2
-BULLET_DAMAGE = 10
+WEAPONS = {}
+WEAPONS['pistol'] = {'bullet_speed': 1000,
+					'bullet_lifetime': 1500,
+					'rate': 250,
+					'kickback': 200,
+					'spread': 5,
+					'damage': 10,
+					'bullet_size': 'lg',
+					'bullet_count': 1}
+WEAPONS['shotgun'] = {'bullet_speed': 400,
+					'bullet_lifetime': 500,
+					'rate': 900,
+					'kickback': 300,
+					'spread': 10,
+					'damage': 10,
+					'bullet_size': 'sm',
+					'bullet_count': 12}
 
 #Mob settings
-MOB_HEALTH = 100
+MOB_HEALTH = 1
 MOB_DAMAGE = 10
 MOB_KNOCKBACK = 20
 MOB_SPEED = 150
@@ -65,30 +76,37 @@ TREE_IMG = ['tree_green.png', 'tree_red.png']
 
 #Layers
 WALL_LAYER = 1
-PLAYER_LAYER = 2
-MOB_LAYER = 3
+PLAYER_LAYER = 3
+MOB_LAYER = 2
 SPACE_LAYER = 4
 BULLET_LAYER = 5
 TREE_LAYER = 6
 EFFECTS_LAYER = 6
 ITEM_LAYER = 1
 
+#FX Sprite
+SPLAT = 'FX/green-splat.png'
+DAMAGE_ALPHA = [i for i in range(0, 255, 55)]
+
 #Items
 ITEM_IMAGES = {'health' : 'Items/HeartMoving1.png',
-				'speed' : 'Items/ChickenThighMoving1.png'}
+				'speed' : 'Items/ChickenThighMoving1.png',
+				'shotgun': 'Items/shotgun.png'}
 HEALTH_PACK_AMOUNT = 50
 BOOST_TIME = 6 #in sec
 BOB_RANGE = 15 #in pixel
 BOB_SPEED = 0.4
 
 #Sounds
-
 BG_MUSIC = 'Western_Adventures.mp3'
 PLAYER_HIT_SOUNDS = ['pain/8.wav', 'pain/9.wav', 'pain/10.wav', 'pain/11.wav']
 ZOMBIE_MOAN_SOUNDS = ['brains2.wav', 'brains3.wav', 'zombie-roar-1.wav', 'zombie-roar-2.wav',
 						'zombie-roar-3.wav', 'zombie-roar-5.wav', 'zombie-roar-6.wav', 'zombie-roar-7.wav']
 ZOMBIE_HIT_SOUNDS = ['man-dying.wav']
-WEAPON_SOUNDS_GUN = ['gunshot/gunshot-high-1.wav', 'gunshot/gunshot-high-2.wav', 'gunshot/gunshot-high-3.wav',
-					 'gunshot/gunshot-high-4.wav', 'gunshot/gunshot-high-5.wav', 'gunshot/gunshot-high-6.wav']
+WEAPON_SOUNDS = {'pistol': ['gunshot/gunshot-high-1.wav', 'gunshot/gunshot-high-2.wav', 'gunshot/gunshot-high-3.wav',
+					 		'gunshot/gunshot-high-4.wav', 'gunshot/gunshot-high-5.wav', 'gunshot/gunshot-high-6.wav'],
+				'shotgun': ['gunshot/shotgun.wav']}
 EFFECTS_SOUNDS = {'level_start' : 'level_start.wav',
-					'health_up' : 'health_pack.wav'}						
+					'health_up' : 'health_pack.wav',
+					'shotgun' : 'shotgun-cocking.wav',
+					'eating': 'eating.wav'}					
