@@ -25,7 +25,7 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 
 #Player settings
 PLAYER_HEALTH = 100
-PLAYER_SPEED = 1000 #pixel per sec
+PLAYER_SPEED = 300 #pixel per sec
 PLAYER_HIT_RECT = pg.Rect(0 , 0, 20, 20)
 BARREL_OFFSET = vec(20, 8)
 
@@ -60,7 +60,7 @@ WEAPONS['shotgun'] = {'bullet_speed': 400,
 					'bullet_count': 12}
 
 #Mob settings
-MOB_HEALTH = 1
+MOB_HEALTH = 100
 MOB_DAMAGE = 10
 MOB_KNOCKBACK = 20
 MOB_SPEED = 150
