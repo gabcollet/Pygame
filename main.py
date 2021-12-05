@@ -1,11 +1,17 @@
 #basic game loop structure
 
 import pygame as pg
+import os
 import sys
 from os import path
 from settings import *
 from sprites import *
 from tilemap import *
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
 
 #HUD functions
 def draw_player_health(surf, x, y, pct):
@@ -61,13 +67,13 @@ class Game:
 
 	def	load_data(self):
 		game_folder = path.dirname(__file__)
-		img_folder = path.join(game_folder, 'img')
-		snd_folder = path.join(game_folder, 'snd')
-		music_folder = path.join(game_folder, 'music')
-		self.map_folder = path.join(game_folder, 'maps')
-		self.title_font = path.join(img_folder, 'Font/RioGrande.ttf')
-		self.hud_font = path.join(img_folder, 'Font/Cowboys.ttf')
-		self.text_font = path.join(img_folder, 'Font/OldTownRegular.ttf')
+		img_folder = resource_path('img')
+		snd_folder = resource_path('snd')
+		music_folder = resource_path('music')
+		self.map_folder = resource_path('maps')
+		self.title_font = resource_path('img/Font/RioGrande.ttf')
+		self.hud_font = resource_path('img/Font/Cowboys.ttf')
+		self.text_font = resource_path('img/Font/OldTownRegular.ttf')
 		self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
 		self.dim_screen.fill((0, 0, 0, 180))
 		self.player_img = []

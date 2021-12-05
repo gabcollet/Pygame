@@ -257,6 +257,6 @@
   <object id="168" name="mob" x="848" y="1296" width="32" height="32"/>
   <object id="169" name="mob" x="1728" y="880" width="32" height="32"/>
   <object id="170" name="mob" x="2672" y="1600" width="32" height="32"/>
-  <object id="171" name="shotgun" x="176" y="1760" width="32" height="32"/>
+  <object id="171" name="shotgun" x="768" y="1312" width="32" height="32"/>
  </objectgroup>
 </map>
