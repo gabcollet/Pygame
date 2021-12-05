@@ -72,6 +72,7 @@ class Player(pg.sprite.Sprite):
 		self.speed = PLAYER_SPEED
 		self.weapon = 'pistol'
 		self.damage = False
+		self.ammo = 0
 
 	def	get_keys(self):
 		self.vel = vec(0, 0)
@@ -129,11 +130,13 @@ class Player(pg.sprite.Sprite):
 			self.vel = vec(-WEAPONS[self.weapon]['kickback'], 0).rotate(self.rot)
 			for i in range(WEAPONS[self.weapon]['bullet_count']):
 				spread = uniform(-WEAPONS[self.weapon]['spread'], WEAPONS[self.weapon]['spread'])
-				Bullet(self.game, pos, dir.rotate(spread), WEAPONS[self.weapon]['damage'])
+				Bullet(self.game, pos, dir.rotate(spread), WEAPONS[self.weapon]['damage'], WEAPONS[self.weapon]['bullet_lifetime'])
 				snd = choice(self.game.weapon_sounds[self.weapon])
 				if snd.get_num_channels() > 2:
 					snd.stop()
 				snd.play()
+			if self.weapon == 'shotgun':
+				self.ammo -= 1
 
 	def hit(self):
 		self.damage = True
@@ -157,6 +160,8 @@ class Player(pg.sprite.Sprite):
 		time = pg.time.get_ticks()
 		if time - self.boost_time > BOOST_TIME * 1000:
 			self.speed = PLAYER_SPEED
+		if self.ammo == 0:
+			self.weapon = 'pistol'
 
 	def add_health(self):
 		self.health += HEALTH_PACK_AMOUNT
@@ -166,6 +171,11 @@ class Player(pg.sprite.Sprite):
 	def speed_boost(self):
 		self.speed = PLAYER_SPEED * 2
 		self.boost_time = pg.time.get_ticks()
+	
+	def	shotgun(self):
+		self.weapon = 'shotgun'
+		self.ammo = 10
+
 
 class Mob(pg.sprite.Sprite):
 	def __init__(self, game, x, y):
@@ -244,7 +254,7 @@ class Mob(pg.sprite.Sprite):
 				pg.draw.rect(mob.image, col, mob.health_bar)
 
 class Bullet(pg.sprite.Sprite):
-	def __init__(self, game, pos, dir, damage):
+	def __init__(self, game, pos, dir, damage, lifetime):
 		self._layer = BULLET_LAYER
 		self.groups = game.all_sprites, game.bullets
 		pg.sprite.Sprite.__init__(self, self.groups)
@@ -257,6 +267,7 @@ class Bullet(pg.sprite.Sprite):
 		self.vel = dir * WEAPONS[game.player.weapon]['bullet_speed'] * uniform(0.9, 1.1)
 		self.spawn_time = pg.time.get_ticks()
 		self.damage = damage
+		self.bullet_lifetime = lifetime
 
 	def update(self):
 		self.pos += self.vel * self.game.dt
@@ -266,7 +277,7 @@ class Bullet(pg.sprite.Sprite):
 		self.hit_rect.move_ip(0, 15)
 		if pg.sprite.spritecollideany(self, self.game.walls):
 			self.kill()
-		if pg.time.get_ticks() - self.spawn_time > WEAPONS[self.game.player.weapon]['bullet_lifetime']:
+		if pg.time.get_ticks() - self.spawn_time > self.bullet_lifetime :
 			self.kill()
 
 class Obstacle(pg.sprite.Sprite):

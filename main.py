@@ -183,7 +183,7 @@ class Game:
 			if hit.type == 'shotgun':
 				hit.kill()
 				self.effects_sounds['shotgun'].play()
-				self.player.weapon = 'shotgun'
+				self.player.shotgun()
 		#mobs hit player
 		hits = pg.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
 		for hit in hits:
@@ -228,6 +228,8 @@ class Game:
 		#HUD functions
 		draw_player_health(self.screen, 10, 10, self.player.health / PLAYER_HEALTH)
 		self.draw_text('Los Cactus: {}'.format(len(self.mobs)), self.hud_font, 30, WHITE, WIDTH - 10, 10, align="ne")
+		if self.player.ammo > 0:
+			self.draw_text('Ammo: {}'.format(self.player.ammo), self.hud_font, 15, WHITE, 12, 50, align="nw")
 		if self.paused:
 			self.screen.blit(self.dim_screen, (0, 0))
 			self.draw_text("(Paused)", self.title_font, 105, RED, WIDTH / 2, HEIGHT / 2, align="center")
