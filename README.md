@@ -1,7 +1,9 @@
 # Pygame
 I made this little cowboy game that I named "El cazador de cactus" to learn the basic of pygame and python.<br />
 The goal is to kill every cactus man in the map.<br />
-You can use the shotgun in the map to make it a bit easier but watch out, your ammo is limited!
+You can use the shotgun in the map to make it a bit easier but watch out, your ammo is limited!<br />
+
+Note : Currently because of the paths the program only works on mac and linux.
 
 # How to install :
 
